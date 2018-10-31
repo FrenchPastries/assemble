@@ -1,0 +1,41 @@
+{
+  "name": "@frenchpastries/assemble",
+  "version": "0.1.0",
+  "main": "src/index.js",
+  "repository": "git@github.com:FrenchPastries/assemble.git",
+  "author": "Guillaume Hivert <guillaume.hivert@outlook.com>",
+  "license": "MIT",
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^5.8.0",
+    "nodemon": "^1.18.5"
+  },
+  "files": [
+    "/src"
+  ],
+  "eslintConfig": {
+    "extends": "eslint:recommended",
+    "parserOptions": {
+      "ecmaVersion": 9,
+      "sourceType": "module"
+    },
+    "env": {
+      "es6": true,
+      "amd": true,
+      "node": true
+    },
+    "rules": {
+      "no-console": [
+        "error",
+        {
+          "allow": [
+            "log",
+            "warn",
+            "error"
+          ]
+        }
+      ]
+    }
+  }
+}
