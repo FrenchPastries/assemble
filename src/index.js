@@ -100,7 +100,7 @@ const responseOrNotFound = (routesSwitch, request, response) => {
 
 const routeRequest = routesSwitch => request => {
   helpers.debug('-----> Enter routeRequest')
-  request.routeSegments = request.routeSegments || getRouteSegments(addTrailingSlash(request.url))
+  request.routeSegments = request.routeSegments || getRouteSegments(addTrailingSlash(request.url.pathname))
   const handler = getHandler(request, routesSwitch)
   if (handler) {
     if (request.routeSegments.length === 0) {
