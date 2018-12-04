@@ -158,9 +158,27 @@ const context = (endpoint, routesOrHandler) => {
   }
 }
 
+const compose = routes => request => {
+  const firstRouter = routes[0]
+  if (firstRouter) {
+    const result = firstRouter(request)
+    delete request.routeSegments
+    if (result) {
+      return result
+    } else {
+      return compose(routes.slice(1))(request)
+    }
+  } else {
+    return {
+      statusCode: 500
+    }
+  }
+}
+
 module.exports = {
   routes,
   context,
+  compose,
   get,
   post,
   patch,
