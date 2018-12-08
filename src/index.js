@@ -98,16 +98,28 @@ const responseOrNotFound = (routesSwitch, request, response) => {
   }
 }
 
-const routeRequest = routesSwitch => request => {
+const getOrComputeRouteSegments = request => (
+  request.routeSegments
+    || getRouteSegments(addTrailingSlash(request.url.pathname))
+)
+
+const removeSegments = request => {
+  if (request.routeSegments.length === 0) {
+    return { ...request, routeSegments: undefined }
+  } else {
+    return request
+  }
+}
+
+const routeRequest = routesSwitch => rawRequest => {
   helpers.debug('-----> Enter routeRequest')
-  request.routeSegments = request.routeSegments || getRouteSegments(addTrailingSlash(request.url.pathname))
+  const routeSegments = getOrComputeRouteSegments(rawRequest)
+  const request = { ...rawRequest, routeSegments }
   const handler = getHandler(request, routesSwitch)
   if (handler) {
-    if (request.routeSegments.length === 0) {
-      delete request.routeSegments
-    }
-    const response = handler(request)
-    return responseOrNotFound(routesSwitch, request, response)
+    const finalRequest = removeSegments(request)
+    const response = handler(finalRequest)
+    return responseOrNotFound(routesSwitch, finalRequest, response)
   } else {
     return responseOrNotFound(routesSwitch, request, null)
   }
@@ -162,7 +174,6 @@ const compose = routes => request => {
   const firstRouter = routes[0]
   if (firstRouter) {
     const result = firstRouter(request)
-    delete request.routeSegments
     if (result) {
       return result
     } else {
