@@ -113,10 +113,21 @@ const removeSegments = request => {
   }
 }
 
+const computeRouteRequest = rawRequest => {
+  const routeSegments = getOrComputeRouteSegments(rawRequest)
+  const request = {
+    ...rawRequest,
+    routeSegments,
+    context: {
+      ...rawRequest.context
+    }
+  }
+  return request
+}
+
 const routeRequest = routesSwitch => rawRequest => {
   helpers.debug('-----> Enter routeRequest')
-  const routeSegments = getOrComputeRouteSegments(rawRequest)
-  const request = { ...rawRequest, routeSegments, context: { ...rawRequest.context } }
+  const request = computeRouteRequest(rawRequest)
   const handler = getHandler(request, routesSwitch)
   if (handler) {
     const finalRequest = removeSegments(request)
