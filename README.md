@@ -33,7 +33,7 @@ const handleRoot  = request => response(
 
 const allRoutes = Assemble.routes([
   get('/', handleRoot),
-  get('/users' handlerUsers)
+  get('/users', handleUsers)
 ])
 
 MilleFeuille.create(allRoutes)
