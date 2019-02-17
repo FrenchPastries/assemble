@@ -105,7 +105,9 @@ const getOrComputeRouteSegments = request => (
 
 const removeSegments = request => {
   if (request.routeSegments.length === 0) {
-    return { ...request, routeSegments: undefined }
+    const newRequest = { ...request }
+    delete newRequest.routeSegments
+    return newRequest
   } else {
     return request
   }
@@ -114,7 +116,7 @@ const removeSegments = request => {
 const routeRequest = routesSwitch => rawRequest => {
   helpers.debug('-----> Enter routeRequest')
   const routeSegments = getOrComputeRouteSegments(rawRequest)
-  const request = { ...rawRequest, routeSegments }
+  const request = { ...rawRequest, routeSegments, context: { ...rawRequest.context } }
   const handler = getHandler(request, routesSwitch)
   if (handler) {
     const finalRequest = removeSegments(request)
