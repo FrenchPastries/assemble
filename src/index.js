@@ -175,10 +175,21 @@ const notFound = handler => ({
   handler: handler
 })
 
+const removeTrailingSlash = (matcher) => {
+  if (matcher.route === '/') {
+    return matcher
+  } else {
+    return {
+      ...matcher,
+      route: matcher.route.slice(0, -1)
+    }
+  }
+}
+
 const context = (endpoint, routesOrHandler) => {
   switch (typeof routesOrHandler) {
-    case 'function': return any(endpoint, routesOrHandler)
-    case 'object': return any(endpoint, routes(routesOrHandler))
+    case 'function': return removeTrailingSlash(any(endpoint, routesOrHandler))
+    case 'object': return removeTrailingSlash(any(endpoint, routes(routesOrHandler)))
     default: throw 'Context Error'
   }
 }
