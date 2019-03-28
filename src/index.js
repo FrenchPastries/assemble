@@ -9,10 +9,15 @@ const addHandler = (segments, urlSegments, handler) => {
   } else {
     const part = urlSegments[0]
     if (part.startsWith(':')) {
-      segments = {}
+      const glob = segments.global || {}
       segments.global = {
+        ...glob,
         name: part.slice(1),
-        handler: handler
+        parts: addHandler(
+          (glob.parts || {}),
+          urlSegments.slice(1),
+          handler
+        )
       }
     } else {
       const handlerPart = segments[part] || {}
@@ -61,7 +66,7 @@ const getHandlerWithMethod = (allHandlers, request) => {
   const globalMatcher = allHandlers.global
   if (globalMatcher) {
     request.context[globalMatcher.name] = value
-    return getHandlerWithMethod(allHandlers.global.handler, request)
+    return getHandlerWithMethod(allHandlers.global.parts, request)
   } else {
     if (allHandlers[value]) {
       return getHandlerWithMethod(allHandlers[value], request)
