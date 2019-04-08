@@ -1,5 +1,7 @@
 const { types } = require('./request')
 const helpers = require('./helpers')
+const { toJSON } = require('./jsonify')
+const { exportRoutes } = require('./export-routes')
 
 const getRouteSegments = route => route.split('/').slice(1)
 
@@ -146,7 +148,10 @@ const routeRequest = routesSwitch => rawRequest => {
 const routes = allRoutes => {
   const routesSwitch = allRoutes.reduce(createRouterHash, {})
   helpers.debug(routesSwitch)
-  return routeRequest(routesSwitch)
+  const router = routeRequest(routesSwitch)
+  router.toJSON = toJSON(routesSwitch)
+  router.exportRoutes = exportRoutes(routesSwitch)
+  return router
 }
 
 const addTrailingSlash = route => {
