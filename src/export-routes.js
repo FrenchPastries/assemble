@@ -1,3 +1,5 @@
+const chalk = require('chalk')
+
 const { jsonify } = require('./jsonify')
 
 const getSubPaths = (acc, [ key, value ]) => {
@@ -56,7 +58,20 @@ const groupByVerb = ({ ANY }) => {
 
 const warnForSimilarRoutes = (routes, categorizedContextRoutes) => {
   VERBS.forEach((verb) => {
-
+    const routesVerb = routes[verb] || []
+    const catRoutesVerb = categorizedContextRoutes[verb] || []
+    const normalizedCatRoutesVerb = catRoutesVerb.map(normalizeMatcher)
+    routesVerb.forEach(route => {
+      const normalizedRoute = normalizeMatcher(route)
+      if (normalizedCatRoutesVerb.includes(normalizedRoute)) {
+        console.warn(
+          chalk.yellow.bold(
+            `-----> ${route} is already matched by a context or any handler.
+       Be careful, this route will never be reached.`
+          )
+        )
+      }
+    })
   })
 }
 
