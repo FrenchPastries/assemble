@@ -85,6 +85,26 @@ const allRoutes = Assemble.routes([
 
 In the case using a handler, you can easily apply middlewares to the handler, and generates handlers protected for example. But you can also generates custom routes for your ressources by providing custom handlers in your functions! You're quasi free to do what you want.
 
+# Export the routes
+
+To provide an easier access to what get compiled, you can export all the routes in a readable format. To do so, just run `.exportRoutes()` on the routes, and tada! You got the routes ready!
+
+```javascript
+const allRoutes = Assemble.routes([
+  get('/user', handler),
+  context('/post', [
+    get('/', handler),
+    get('/post', handler),
+  ]),
+])
+
+allRoutes.exportRoutes()
+// { GET:
+//    [ '/user/',
+//      '/post/',
+//      '/post/post' ] }
+```
+
 # Last details
 
 You can provide to special routes: `any` and `notFound`. The first one will simply route any request to the handler, while the second will be fired each time the user request a route which does not exist. You can use them in the same way as the others.
