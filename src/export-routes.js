@@ -98,7 +98,8 @@ const mergeRoutes = (routes, categorizedContextRoutes) => {
 const transform = (allRoutes) => {
   const { ANY, ...rest } = JSON.parse(JSON.stringify(allRoutes))
   const routes = computePaths(rest)
-  const allContextRoutes = computePaths({ ANY })
+  const anyHandler = ANY || {}
+  const allContextRoutes = computePaths({ ANY: anyHandler })
   const categorizedContextRoutes = groupByVerb(allContextRoutes)
   warnForSimilarRoutes(routes, categorizedContextRoutes)
   const finalRoutes = mergeRoutes(routes, categorizedContextRoutes)
