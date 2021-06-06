@@ -49,10 +49,7 @@ const selectHandler = (
   }
 }
 
-const createRouterHash = (
-  acc: any,
-  { method, route, handler }: Matcher<any>
-) => {
+const createRouterHash = (acc: any, { method, route, handler }: Matcher) => {
   const methodHandlers = acc[method] || {}
   const updatedHandlers = selectHandler(method, methodHandlers, route, handler)
   acc[method] = updatedHandlers
@@ -147,9 +144,7 @@ const routeRequest = (routesSwitch: any) => (rawRequest: IncomingRequest) => {
   }
 }
 
-export const routes = (
-  allRoutes: Matcher<any>[]
-): Handler<IncomingRequest, any> => {
+export const routes = (allRoutes: Matcher[]): Handler<IncomingRequest, any> => {
   const routesSwitch = allRoutes.reduce(createRouterHash, {})
   helpers.debug(routesSwitch)
   const router: Handler<IncomingRequest, any> = routeRequest(routesSwitch)
@@ -172,17 +167,17 @@ const addTrailingSlash = (route: string) => {
   }
 }
 
-export type Matcher<Type> = {
+export type Matcher = {
   method: types.Method
   route: string
-  handler: Handler<IncomingRequest, ServerResponse<Type>>
+  handler: Handler<IncomingRequest, ServerResponse<any>>
 }
 
 const matcher = (method: types.Method) => {
-  return <Type>(
+  return (
     route: string,
-    handler: Handler<IncomingRequest, ServerResponse<Type>>
-  ): Matcher<Type> => ({
+    handler: Handler<IncomingRequest, ServerResponse<any>>
+  ): Matcher => ({
     method: method,
     route: addTrailingSlash(route),
     handler: handler,
@@ -204,7 +199,7 @@ export const notFound = <Type>(
   handler: handler,
 })
 
-const removeTrailingSlash = <Type>(matcher: Matcher<Type>): Matcher<Type> => {
+const removeTrailingSlash = (matcher: Matcher): Matcher => {
   if (matcher.route === '/') {
     return matcher
   } else {
@@ -217,10 +212,8 @@ const removeTrailingSlash = <Type>(matcher: Matcher<Type>): Matcher<Type> => {
 
 export const context = <Type>(
   endpoint: string,
-  routesOrHandler:
-    | Handler<IncomingRequest, ServerResponse<Type>>
-    | Matcher<Type>[]
-): Matcher<Type> => {
+  routesOrHandler: Handler<IncomingRequest, ServerResponse<Type>> | Matcher[]
+): Matcher => {
   switch (typeof routesOrHandler) {
     case 'function':
       return removeTrailingSlash(any(endpoint, routesOrHandler))
