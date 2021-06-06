@@ -1,15 +1,10 @@
-const debugMap = elem => {
+export const debugMap = <Type>(elem: Type): Type => {
   console.log(elem)
   return elem
 }
 
-const debug = elem => {
+export const debug = (elem: any): void => {
   if (process.env.SERVER_ENV === 'development') {
     console.log(elem)
   }
-}
-
-module.exports = {
-  debug,
-  debugMap
 }

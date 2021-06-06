@@ -1,0 +1,18 @@
+export const GET = 'GET'
+export const ANY = 'ANY'
+export const POST = 'POST'
+export const PATCH = 'PATCH'
+export const PUT = 'PUT'
+export const DELETE = 'DELETE'
+export const OPTIONS = 'OPTIONS'
+export const NOT_FOUND = 'NOT_FOUND'
+
+export type Method = 
+  | 'GET'
+  | 'ANY'
+  | 'POST'
+  | 'PATCH'
+  | 'PUT'
+  | 'DELETE'
+  | 'OPTIONS'
+  | 'NOT_FOUND'

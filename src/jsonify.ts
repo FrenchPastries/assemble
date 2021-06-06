@@ -1,4 +1,4 @@
-const jsonify = object => {
+export const jsonify = (object: any): any => {
   if (typeof object === 'object') {
     return Object.keys(object).reduce((acc, val) => {
       const t = object[val]
@@ -15,11 +15,6 @@ const jsonify = object => {
   }
 }
 
-const toJSON = (routesSwitch) => () => {
+export const toJSON = (routesSwitch: any) => () => {
   return jsonify(routesSwitch)
-}
-
-module.exports = {
-  jsonify,
-  toJSON,
 }

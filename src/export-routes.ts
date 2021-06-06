@@ -1,13 +1,12 @@
-const chalk = require('chalk')
+import chalk from 'chalk'
+import { jsonify } from './jsonify'
 
-const { jsonify } = require('./jsonify')
-
-const getSubPaths = (acc, [ key, value ]) => {
+const getSubPaths = (acc: any, [key, value]: [string, any]): string[] => {
   if (value === 'end') {
-    return acc.concat([ '' ])
+    return acc.concat([''])
   } else if (value.global) {
     const { name, parts } = value.global
-    const prefix = [ key, `:${name}` ].join('/')
+    const prefix = [key, `:${name}`].join('/')
     const subPaths = getAllPaths(prefix, parts)
     return acc.concat(subPaths)
   } else {
@@ -16,52 +15,50 @@ const getSubPaths = (acc, [ key, value ]) => {
   }
 }
 
-const getAllPaths = (prefix, paths) => {
-  return Object
-    .entries(paths)
+const getAllPaths = (prefix: string, paths: any) => {
+  return Object.entries(paths)
     .reduce(getSubPaths, [])
-    .map(elem => [ prefix, elem ].join('/'))
+    .map(elem => [prefix, elem].join('/'))
 }
 
-const computePaths = rest => {
+const computePaths = (rest: any) => {
   return Object.keys(rest).reduce((acc, method) => {
     return { ...acc, [method]: getAllPaths('', rest[method]) }
   }, {})
 }
 
-const VERBS = [ 'GET', 'POST', 'PATCH', 'PUT', 'DEL', 'OPTIONS', 'ANY' ]
+const VERBS = ['GET', 'POST', 'PATCH', 'PUT', 'DEL', 'OPTIONS', 'ANY']
 
-const findVerb = route => {
-  return VERBS.reduce((acc, val) => {
-    if (acc) {
-      return acc
-    } else if (route.includes(val)) {
-      return val
-    } else {
-      return null
-    }
-  }, null) || 'ANY'
+const findVerb = (route: any) => {
+  return (
+    VERBS.reduce((acc: any, val) => {
+      if (acc) {
+        return acc
+      } else if (route.includes(val)) {
+        return val
+      } else {
+        return null
+      }
+    }, null) || 'ANY'
+  )
 }
 
-const groupByVerb = ({ ANY }) => {
-  return ANY.reduce((acc, val) => {
+const groupByVerb = ({ ANY }: any) => {
+  return ANY.reduce((acc: any, val: any) => {
     const verb = findVerb(val)
     return {
       ...acc,
-      [verb]: [
-        ...(acc[verb] || []),
-        val.replace(`${verb}/`, '')
-      ]
+      [verb]: [...(acc[verb] || []), val.replace(`${verb}/`, '')],
     }
   }, {})
 }
 
-const warnForSimilarRoutes = (routes, categorizedContextRoutes) => {
-  VERBS.forEach((verb) => {
+const warnForSimilarRoutes = (routes: any, categorizedContextRoutes: any) => {
+  VERBS.forEach(verb => {
     const routesVerb = routes[verb] || []
     const catRoutesVerb = categorizedContextRoutes[verb] || []
     const normalizedCatRoutesVerb = catRoutesVerb.map(normalizeMatcher)
-    routesVerb.forEach(route => {
+    routesVerb.forEach((route: any) => {
       const normalizedRoute = normalizeMatcher(route)
       if (normalizedCatRoutesVerb.includes(normalizedRoute)) {
         console.warn(
@@ -75,17 +72,17 @@ const warnForSimilarRoutes = (routes, categorizedContextRoutes) => {
   })
 }
 
-const normalizeMatcher = url => url.replace(/:[a-zA-z_]*/g, ':match')
+const normalizeMatcher = (url: string) => url.replace(/:[a-zA-z_]*/g, ':match')
 
-const mergeRoutes = (routes, categorizedContextRoutes) => {
+const mergeRoutes = (routes: any, categorizedContextRoutes: any) => {
   return VERBS.reduce((acc, verb) => {
     const routesVerb = acc[verb] || []
     const catRoutesVerb = categorizedContextRoutes[verb] || []
-    const finals = routesVerb.reduce((acc, val) => {
+    const finals = routesVerb.reduce((acc: any, val: any) => {
       if (acc.map(normalizeMatcher).includes(normalizeMatcher(val))) {
         return acc
       } else {
-        return [ ...acc, val ]
+        return [...acc, val]
       }
     }, catRoutesVerb)
     return {
@@ -95,7 +92,7 @@ const mergeRoutes = (routes, categorizedContextRoutes) => {
   }, routes)
 }
 
-const transform = (allRoutes) => {
+const transform = (allRoutes: any) => {
   const { ANY, ...rest } = JSON.parse(JSON.stringify(allRoutes))
   const routes = computePaths(rest)
   const anyHandler = ANY || {}
@@ -116,11 +113,7 @@ const transform = (allRoutes) => {
   }, {})
 }
 
-const exportRoutes = routesSwitch => () => {
+export const exportRoutes = (routesSwitch: any) => () => {
   const jsonified = jsonify(routesSwitch)
   return transform(jsonified)
-}
-
-module.exports = {
-  exportRoutes,
 }
