@@ -4,7 +4,7 @@ export const jsonify = (object: any): any => {
       const t = object[val]
       if (val === '') {
         return { ...acc, [val]: 'end' }
-      } else if (t.export) {
+      } else if (t.exportRoutes) {
         return { ...acc, [val]: t.toJSON() }
       } else {
         return { ...acc, [val]: jsonify(t) }

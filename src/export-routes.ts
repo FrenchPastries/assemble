@@ -27,7 +27,7 @@ const computePaths = (rest: any) => {
   }, {})
 }
 
-const VERBS = ['GET', 'POST', 'PATCH', 'PUT', 'DEL', 'OPTIONS', 'ANY']
+const VERBS = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS', 'ANY']
 
 const findVerb = (route: any) => {
   return (
@@ -46,10 +46,8 @@ const findVerb = (route: any) => {
 const groupByVerb = ({ ANY }: any) => {
   return ANY.reduce((acc: any, val: any) => {
     const verb = findVerb(val)
-    return {
-      ...acc,
-      [verb]: [...(acc[verb] || []), val.replace(`${verb}/`, '')],
-    }
+    const verbsRemoved = val.replace(`${verb}/`, '').replace(/ANY\//g, '')
+    return { ...acc, [verb]: [...(acc[verb] || []), verbsRemoved] }
   }, {})
 }
 

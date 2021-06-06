@@ -7,7 +7,7 @@ export const DELETE = 'DELETE'
 export const OPTIONS = 'OPTIONS'
 export const NOT_FOUND = 'NOT_FOUND'
 
-export type Method = 
+export type Method =
   | 'GET'
   | 'ANY'
   | 'POST'
