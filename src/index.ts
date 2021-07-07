@@ -63,7 +63,7 @@ const getHandlerWithMethod = (allHandlers: any, request: any): any => {
   }
 
   const value = request.routeSegments.shift()
-  const globalMatcher = allHandlers.global
+  const globalMatcher = allHandlers?.global
   if (globalMatcher) {
     request.context[globalMatcher.name] = value
     return getHandlerWithMethod(allHandlers.global.parts, request)
