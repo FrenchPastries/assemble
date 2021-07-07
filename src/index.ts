@@ -169,7 +169,7 @@ const addTrailingSlash = (route: string) => {
 
 export type Matcher = {
   method: types.Method
-  route: string
+  route?: string
   handler: Handler<IncomingRequest, ServerResponse<any>>
 }
 
@@ -194,7 +194,7 @@ export const any = matcher(types.ANY)
 
 export const notFound = <Type>(
   handler: Handler<IncomingRequest, ServerResponse<Type>>
-) => ({
+): Matcher => ({
   method: types.NOT_FOUND,
   handler: handler,
 })
