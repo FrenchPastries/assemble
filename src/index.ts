@@ -68,7 +68,7 @@ const getHandlerWithMethod = (allHandlers: any, request: any): any => {
     request.context[globalMatcher.name] = value
     return getHandlerWithMethod(allHandlers.global.parts, request)
   } else {
-    if (allHandlers[value]) {
+    if (allHandlers?.[value]) {
       return getHandlerWithMethod(allHandlers[value], request)
     } else {
       return null
