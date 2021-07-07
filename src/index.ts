@@ -192,8 +192,8 @@ export const del = matcher(types.DELETE)
 export const options = matcher(types.OPTIONS)
 export const any = matcher(types.ANY)
 
-export const notFound = <Type>(
-  handler: Handler<IncomingRequest, ServerResponse<Type>>
+export const notFound = (
+  handler: Handler<IncomingRequest, ServerResponse<any>>
 ): Matcher => ({
   method: types.NOT_FOUND,
   route: '',
