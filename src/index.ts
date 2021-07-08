@@ -107,7 +107,7 @@ const responseOrNotFound = (routesSwitch: any, request: any, response: any) => {
 
 const getOrComputeRouteSegments = (request: any) =>
   request.routeSegments ||
-  getRouteSegments(addTrailingSlash(request.url.pathname))
+  getRouteSegments(addTrailingSlash(request.location.pathname))
 
 const removeSegments = (request: any) => {
   if (request.routeSegments.length === 0) {
