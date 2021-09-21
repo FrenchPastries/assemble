@@ -11,10 +11,10 @@ import { exportRoutes } from './export-routes'
 
 const getRouteSegments = (route: string) => route.split('/').slice(1)
 
-const addHandler = (
+const addHandler = <Request extends IncomingRequest>(
   segments: any,
   urlSegments: string[],
-  handler: Handler<IncomingRequest, any>
+  handler: Handler<Request, any>
 ) => {
   if (urlSegments.length === 0) {
     return handler
@@ -35,11 +35,11 @@ const addHandler = (
   }
 }
 
-const selectHandler = (
+const selectHandler = <Request extends IncomingRequest>(
   method: string,
   methodHandlers: any,
   route: string,
-  handler: Handler<IncomingRequest, any>
+  handler: Handler<Request, any>
 ) => {
   if (method === types.NOT_FOUND) {
     return handler
@@ -49,7 +49,10 @@ const selectHandler = (
   }
 }
 
-const createRouterHash = (acc: any, { method, route, handler }: Matcher) => {
+const createRouterHash = <Request extends IncomingRequest>(
+  acc: any,
+  { method, route, handler }: Matcher<Request>
+) => {
   const methodHandlers = acc[method] || {}
   const updatedHandlers = selectHandler(method, methodHandlers, route, handler)
   acc[method] = updatedHandlers
@@ -144,10 +147,12 @@ const routeRequest = (routesSwitch: any) => (rawRequest: IncomingRequest) => {
   }
 }
 
-export const routes = (allRoutes: Matcher[]): Handler<IncomingRequest, any> => {
+export const routes = <Request extends IncomingRequest>(
+  allRoutes: Matcher<Request>[]
+): Handler<Request, any> => {
   const routesSwitch = allRoutes.reduce(createRouterHash, {})
   helpers.debug(routesSwitch)
-  const router: Handler<IncomingRequest, any> = routeRequest(routesSwitch)
+  const router: Handler<Request, any> = routeRequest(routesSwitch)
   // @ts-ignore
   router.toJSON = toJSON(routesSwitch)
   // @ts-ignore
@@ -167,40 +172,63 @@ const addTrailingSlash = (route: string) => {
   }
 }
 
-export type Matcher = {
+export type Matcher<Request extends IncomingRequest> = {
   method: types.Method
   route: string
-  handler: Handler<IncomingRequest, ServerResponse<any>>
+  handler: Handler<Request, ServerResponse<any>>
 }
 
-const matcher = (method: types.Method) => {
+const matcher = <Request extends IncomingRequest>(method: types.Method) => {
   return (
     route: string,
-    handler: Handler<IncomingRequest, ServerResponse<any>>
-  ): Matcher => ({
+    handler: Handler<Request, ServerResponse<any>>
+  ): Matcher<Request> => ({
     method: method,
     route: addTrailingSlash(route),
     handler: handler,
   })
 }
 
-export const get = matcher(types.GET)
-export const post = matcher(types.POST)
-export const patch = matcher(types.PATCH)
-export const put = matcher(types.PUT)
-export const del = matcher(types.DELETE)
-export const options = matcher(types.OPTIONS)
-export const any = matcher(types.ANY)
+export const get: <Request extends IncomingRequest>(
+  route: string,
+  handler: Handler<Request, ServerResponse<any>>
+) => Matcher<Request> = matcher(types.GET)
+export const post: <Request extends IncomingRequest>(
+  route: string,
+  handler: Handler<Request, ServerResponse<any>>
+) => Matcher<Request> = matcher(types.POST)
+export const patch: <Request extends IncomingRequest>(
+  route: string,
+  handler: Handler<Request, ServerResponse<any>>
+) => Matcher<Request> = matcher(types.PATCH)
+export const put: <Request extends IncomingRequest>(
+  route: string,
+  handler: Handler<Request, ServerResponse<any>>
+) => Matcher<Request> = matcher(types.PUT)
+export const del: <Request extends IncomingRequest>(
+  route: string,
+  handler: Handler<Request, ServerResponse<any>>
+) => Matcher<Request> = matcher(types.DELETE)
+export const options: <Request extends IncomingRequest>(
+  route: string,
+  handler: Handler<Request, ServerResponse<any>>
+) => Matcher<Request> = matcher(types.OPTIONS)
+export const any: <Request extends IncomingRequest>(
+  route: string,
+  handler: Handler<Request, ServerResponse<any>>
+) => Matcher<Request> = matcher(types.ANY)
 
-export const notFound = (
-  handler: Handler<IncomingRequest, ServerResponse<any>>
-): Matcher => ({
+export const notFound = <Request extends IncomingRequest>(
+  handler: Handler<Request, ServerResponse<any>>
+): Matcher<Request> => ({
   method: types.NOT_FOUND,
   route: '',
   handler: handler,
 })
 
-const removeTrailingSlash = (matcher: Matcher): Matcher => {
+const removeTrailingSlash = <Request extends IncomingRequest>(
+  matcher: Matcher<Request>
+): Matcher<Request> => {
   if (matcher.route === '/') {
     return matcher
   } else {
@@ -211,10 +239,12 @@ const removeTrailingSlash = (matcher: Matcher): Matcher => {
   }
 }
 
-export const context = <Type>(
+export const context = <Request extends IncomingRequest, Response>(
   endpoint: string,
-  routesOrHandler: Handler<IncomingRequest, ServerResponse<Type>> | Matcher[]
-): Matcher => {
+  routesOrHandler:
+    | Handler<Request, ServerResponse<Response>>
+    | Matcher<Request>[]
+): Matcher<Request> => {
   switch (typeof routesOrHandler) {
     case 'function':
       return removeTrailingSlash(any(endpoint, routesOrHandler))
@@ -225,10 +255,10 @@ export const context = <Type>(
   }
 }
 
-export const compose = <Type>(
-  routes: Handler<IncomingRequest, ServerResponse<Type>>[]
-): Handler<IncomingRequest, ServerResponse<Type>> => {
-  return (request: IncomingRequest) => {
+export const compose = <Request extends IncomingRequest, Response>(
+  routes: Handler<Request, ServerResponse<Response>>[]
+): Handler<Request, ServerResponse<Response>> => {
+  return (request: Request) => {
     const firstRouter = routes[0]
     if (firstRouter) {
       const result = firstRouter(request)
