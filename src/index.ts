@@ -134,16 +134,24 @@ const computeRouteRequest = (rawRequest: any) => {
   return request
 }
 
-const routeRequest = (routesSwitch: any) => (rawRequest: IncomingRequest) => {
-  helpers.debug('-----> Enter routeRequest')
-  const request = computeRouteRequest(rawRequest)
-  const handler = getHandler(request, routesSwitch)
-  if (handler) {
-    const finalRequest = removeSegments(request)
-    const response = handler(finalRequest)
-    return responseOrNotFound(routesSwitch, finalRequest, response)
-  } else {
-    return responseOrNotFound(routesSwitch, request, null)
+const routeRequest = (routesSwitch: any) => {
+  return async (rawRequest: IncomingRequest) => {
+    helpers.debug('-----> Enter routeRequest')
+    const request = computeRouteRequest(rawRequest)
+    const handler = getHandler(request, routesSwitch)
+    if (handler) {
+      const finalRequest = removeSegments(request)
+      const response = handler(finalRequest)
+      if (response?.then) {
+        return response.then((r: any) => {
+          return responseOrNotFound(routesSwitch, finalRequest, r)
+        })
+      } else {
+        return responseOrNotFound(routesSwitch, finalRequest, response)
+      }
+    } else {
+      return responseOrNotFound(routesSwitch, request, null)
+    }
   }
 }
 
