@@ -61,10 +61,8 @@ const createRouterHash = <Request extends IncomingRequest>(
 
 const getHandlerWithMethod = (allHandlers: any, request: any): any => {
   helpers.debug('-----> Enter in getHandlerWithMethod')
-  if (typeof allHandlers === 'function' || request.routeSegments.length === 0) {
-    return allHandlers
-  }
-
+  if (typeof allHandlers === 'function') return allHandlers
+  if (request.routeSegments.length === 0) return allHandlers[''] ?? null
   const value = request.routeSegments.shift()
   const globalMatcher = allHandlers?.global
   if (globalMatcher) {
