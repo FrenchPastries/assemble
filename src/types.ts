@@ -1,6 +1,6 @@
 import * as mf from '@frenchpastries/millefeuille'
 
-export type PathHandler<Input = any, Output = any> = {
+export type Export<Input = any, Output = any> = {
   method: string
   path: string
   handler: Handler<Input, Output>
@@ -9,7 +9,7 @@ export type PathHandler<Input = any, Output = any> = {
 // prettier-ignore
 export type Handler<Input, Output> =
   mf.Handler<mf.IncomingRequest<Input>, Output> &
-    { export?: () => PathHandler<Input, Output>[] }
+    { export?: () => Export<Input, Output>[] }
 
 // prettier-ignore
 export type Middleware<Output = any> =

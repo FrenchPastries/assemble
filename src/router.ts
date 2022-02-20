@@ -2,13 +2,13 @@ import * as mf from '@frenchpastries/millefeuille'
 import * as responses from '@frenchpastries/millefeuille/response'
 import * as helpers from './helpers'
 import { Route } from './route'
-import { Handler, PathHandler, applyMiddleware } from './types'
+import { Handler, Export, applyMiddleware } from './types'
 
 type Context = { [key: string]: any }
 type FindHandler = { context: Context; handler: any } | undefined
 const findHandler = (
-  founds: PathHandler[],
-  notFounds: PathHandler[],
+  founds: Export[],
+  notFounds: Export[],
   request: mf.IncomingRequest
 ): FindHandler => {
   const pathname = request.location?.pathname ?? ''
@@ -57,7 +57,7 @@ const findHandler = (
 
 export class Router extends Function {
   #matchers: Route[]
-  #paths: PathHandler[]
+  #paths: Export[]
 
   private constructor(matchers: Route[]) {
     super()
@@ -77,13 +77,13 @@ export class Router extends Function {
     })
   }
 
-  export = (): PathHandler[] => {
-    return this.#matchers.flatMap((matcher): PathHandler[] => {
+  export = (): Export[] => {
+    return this.#matchers.flatMap((matcher): Export[] => {
       const { method, middlewares, route: path, handler } = matcher
       if (!handler.export) return [{ method, path, handler }]
       const exported = handler.export()
       if (exported.length === 0) return [{ method, path, handler }]
-      return exported.flatMap((exprt): PathHandler[] => {
+      return exported.flatMap((exprt): Export[] => {
         const isAny = method === 'ANY'
         const isExprtAny = exprt.method === 'ANY'
         const isSameMethod = method === exprt.method
