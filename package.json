@@ -8,15 +8,20 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "prepare": "yarn build"
+    "prepare": "yarn build",
+    "test": "jest"
   },
   "keywords": [
     "server",
     "functional-programming",
     "router"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "@types/jest": "^27.4.0"
+  },
   "devDependencies": {
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-typescript": "^7.16.7",
     "@frenchpastries/millefeuille": "^1.0.2",
     "@types/node": "^17.0.18",
     "@types/node-fetch": "^2.6.1",

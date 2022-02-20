@@ -36,9 +36,13 @@ export class Route {
   ): Route {
     const endIdx = args.length - 1
     const routes_ = args[endIdx] as Route[]
-    const middlewares = args.slice(1, endIdx) as Middleware<Output>[]
+    const middlewares = args.slice(0, endIdx) as Middleware<Output>[]
     const handler = router.routes<mf.IncomingRequest, Output>(routes_)
     return new Route('ANY', route, handler, middlewares)
+  }
+
+  static notFound(handler: Handler<mf.IncomingRequest, any>) {
+    return Route.route('NOT_FOUND')('/', handler)
   }
 }
 
@@ -50,3 +54,4 @@ export const del = Route.route('DELETE')
 export const options = Route.route('OPTIONS')
 export const any = Route.route('GET')
 export const context = Route.context
+export const notFound = Route.notFound
