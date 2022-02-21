@@ -1,6 +1,6 @@
 {
   "name": "@frenchpastries/assemble",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "main": "dist/assemble.js",
   "types": "dist/assemble.d.ts",
   "repository": "https://github.com/FrenchPastries/assemble",
