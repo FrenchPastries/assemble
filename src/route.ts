@@ -1,19 +1,21 @@
 import * as mf from '@frenchpastries/millefeuille'
 import { Method } from './helpers/request/types'
 import * as helpers from './helpers'
+import { Router } from './router'
 import * as router from './router'
 import { Handler, Middleware } from './types'
 
+// prettier-ignore
 export class Route {
   method: Method
   route: string
-  handler: Handler<mf.IncomingRequest, any>
+  handler: Handler | Router
   middlewares: Middleware[]
 
   private constructor(
     method: Method,
     route: string,
-    handler: Handler<mf.IncomingRequest, any>,
+    handler: Handler | Router,
     middlewares: Middleware[] = []
   ) {
     const route_ = route.startsWith('/') ? route : `/${route}`
@@ -25,23 +27,22 @@ export class Route {
   }
 
   static route(method: Method) {
-    return function (route: string, handler: Handler<mf.IncomingRequest, any>) {
+    return function (route: string, handler: Handler) {
       return new Route(method, route, handler)
     }
   }
 
-  static context<Output = any>(
-    route: string,
-    ...args: [...middlewares: Middleware<Output>[], routes: Route[]]
-  ): Route {
+  static context(route: string, ...args: [...midlwre: Middleware[], router: Router]): Route
+  static context(route: string, ...args: [...midlwre: Middleware[], routes: Route[]]): Route
+  static context(route: string, ...args: [...Middleware[], Route[] | Router]): Route {
     const endIdx = args.length - 1
-    const routes_ = args[endIdx] as Route[]
-    const middlewares = args.slice(0, endIdx) as Middleware<Output>[]
-    const handler = router.routes<mf.IncomingRequest, Output>(routes_)
+    const rts = args[endIdx] as Route[]
+    const middlewares = args.slice(0, endIdx) as Middleware[]
+    const handler = rts instanceof Router ? rts : router.routes(rts)
     return new Route('ANY', route, handler, middlewares)
   }
 
-  static notFound(handler: Handler<mf.IncomingRequest, any>) {
+  static notFound(handler: mf.Handler<mf.IncomingRequest, any>) {
     return Route.route('NOT_FOUND')('/', handler)
   }
 }

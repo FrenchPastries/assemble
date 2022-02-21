@@ -1,8 +1,14 @@
 import * as asble from '../../src/assemble'
 import { handler, middleware1, middleware2 } from './handlers'
 
+const nested = asble.routes([
+  asble.get('/', handler('nested-get')),
+  asble.get('/inside', handler('nested-inside-get')),
+])
+
 export const all = asble.routes([
   asble.get('/', handler('get')),
+  asble.context('/nested', nested),
   asble.context('/post', middleware1, middleware2, [
     asble.get('/', handler('post-get')),
     asble.post('/', handler('post-post')),
@@ -19,6 +25,7 @@ export const all = asble.routes([
     ]),
     asble.get('/:id', handler('user-id-get')),
     asble.post('/:id', handler('user-id-post')),
+    asble.context('/:id', [asble.put('/meh', handler('user-id-meh-put'))]),
     asble.context('/after-global', middleware2, [
       asble.get('/', handler('user-after-global-get')),
       asble.del('/', handler('user-after-global-delete')),

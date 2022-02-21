@@ -2,7 +2,13 @@ import * as mf from '@frenchpastries/millefeuille'
 import * as responses from '@frenchpastries/millefeuille/response'
 import * as helpers from './helpers'
 import { Route } from './route'
-import { Handler, Export, applyMiddleware } from './types'
+import { Handler } from './types'
+
+export type Export<Input = any, Output = any> = {
+  method: string
+  path: string
+  handler: Handler<Input, Output>
+}
 
 type Context = { [key: string]: any }
 type FindHandler = { context: Context; handler: any } | undefined
@@ -55,7 +61,12 @@ const findHandler = (
   if (handler?.handler) return { context: {}, handler: handler.handler }
 }
 
-export class Router extends Function {
+export interface Router<Input = any, Output = any>
+  extends mf.Handler<Input, Output> {
+  export(): Export[]
+}
+
+export class Router<Input, Output> extends Function {
   #matchers: Route[]
   #paths: Export[]
 
@@ -80,7 +91,7 @@ export class Router extends Function {
   export = (): Export[] => {
     return this.#matchers.flatMap((matcher): Export[] => {
       const { method, middlewares, route: path, handler } = matcher
-      if (!handler.export) return [{ method, path, handler }]
+      if (!(handler instanceof Router)) return [{ method, path, handler }]
       const exported = handler.export()
       if (exported.length === 0) return [{ method, path, handler }]
       return exported.flatMap((exprt): Export[] => {
@@ -90,16 +101,14 @@ export class Router extends Function {
         if (!isAny && !isExprtAny && !isSameMethod) return []
         const finalPath = `${path}${exprt.path}`
         const path_ = helpers.request.route.removeTrailingSlash(finalPath)
-        const handler = middlewares.reduce(applyMiddleware, exprt.handler)
+        const handler = middlewares.reduce((acc, m) => m(acc), exprt.handler)
         return [{ method: exprt.method, path: path_, handler }]
       })
     })
   }
 
-  static routes<Input = any, Output = any>(
-    allRoutes: Route[]
-  ): Handler<Input, Output> {
-    return new Router(allRoutes) as unknown as Handler<Input, Output>
+  static routes(allRoutes: Route[]) {
+    return new Router(allRoutes)
   }
 }
 

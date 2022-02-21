@@ -18,6 +18,9 @@ const paths: Path[] = [
   ['/user/2', 'user-id-post', 10, 6],
   ['/user/after-global', 'user-id-get', 11, 6],
   ['/user/after-global', 'user-after-global-delete', 12, 7],
+  ['/user/2/meh', 'user-id-meh-put', 13, 7],
+  ['/nested', 'nested-get', 13, 7],
+  ['/nested/inside', 'nested-inside-get', 13, 7],
 ]
 
 const query = async (path: Path) => {
