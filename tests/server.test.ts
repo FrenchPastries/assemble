@@ -38,8 +38,10 @@ describe('Assemble', () => {
   beforeEach(() => handlers.reset())
 
   test('handler should export routes', () => {
-    const result = routes.all.export!()
+    const result = routes.all.export()
+    const paths = routes.all.routes()
     expect(result).not.toBeNull()
+    expect(paths).not.toBeNull()
   })
 
   test('handler should return the correct path', async () => {

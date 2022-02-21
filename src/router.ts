@@ -1,13 +1,25 @@
 import * as mf from '@frenchpastries/millefeuille'
 import * as responses from '@frenchpastries/millefeuille/response'
+import { Method } from './helpers/request/types'
 import * as helpers from './helpers'
 import { Route } from './route'
 import { Handler } from './types'
 
 export type Export<Input = any, Output = any> = {
-  method: string
+  method: Method
   path: string
   handler: Handler<Input, Output>
+}
+
+export type Paths = {
+  GET: string[]
+  ANY: string[]
+  POST: string[]
+  PATCH: string[]
+  PUT: string[]
+  DELETE: string[]
+  OPTIONS: string[]
+  NOT_FOUND: string[]
 }
 
 type Context = { [key: string]: any }
@@ -64,6 +76,7 @@ const findHandler = (
 export interface Router<Input = any, Output = any>
   extends mf.Handler<Input, Output> {
   export(): Export[]
+  routes(): Paths
 }
 
 export class Router<Input, Output> extends Function {
@@ -105,6 +118,15 @@ export class Router<Input, Output> extends Function {
         return [{ method: exprt.method, path: path_, handler }]
       })
     })
+  }
+
+  routes = () => {
+    const paths = this.export()
+    return paths.reduce((acc, val) => {
+      const { method, path } = val
+      const paths_ = acc[method] ?? []
+      return { ...acc, [method]: [...paths_, path] }
+    }, {} as Paths)
   }
 
   static routes(allRoutes: Route[]) {
