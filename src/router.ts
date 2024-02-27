@@ -114,7 +114,14 @@ export class Router<Input, Output> extends Function {
         if (!isAny && !isExprtAny && !isSameMethod) return []
         const finalPath = `${path}${exprt.path}`
         const path_ = helpers.request.route.removeTrailingSlash(finalPath)
-        const handler = middlewares.reduce((acc, m) => m(acc), exprt.handler)
+        const handler: Handler = value => {
+          const h = middlewares.reduce((acc, m) => m(acc), exprt.handler)
+          return h(value)
+        }
+        Object.defineProperty(handler, 'name', {
+          value: exprt.handler.name,
+          writable: false,
+        })
         return [{ method: exprt.method, path: path_, handler }]
       })
     })
@@ -123,9 +130,9 @@ export class Router<Input, Output> extends Function {
   routes = () => {
     const paths = this.export()
     return paths.reduce((acc, val) => {
-      const { method, path } = val
+      const { method, path, handler } = val
       const paths_ = acc[method] ?? []
-      return { ...acc, [method]: [...paths_, path] }
+      return { ...acc, [method]: { ...paths_, [path]: handler.name } }
     }, {} as Paths)
   }
 
